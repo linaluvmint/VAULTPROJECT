@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>project</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@300;500;800&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --neon-green: #00ff41;
+        --neon-blue: #00f2ff;
+        --neon-pink: #ff00ff;
+        --bg-dark: #020406; 
+        --card-bg: rgba(6, 11, 19, 0.75); /* Sedikit lebih gelap untuk kontras */
+    }
+
+    /* --- HIASAN BARU: SCANLINES --- */
+    body::before {
+        content: " ";
+        display: block;
+        position: fixed;
+        top: 0; left: 0; bottom: 0; right: 0;
+        background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                    linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+        z-index: 1000;
+        background-size: 100% 4px, 3px 100%;
+        pointer-events: none;
+        opacity: 0.3;
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; cursor: crosshair; }
+
+    body {
+        background: var(--bg-dark);
+        color: #e2e8f0;
+        font-family: 'JetBrains Mono', monospace;
+        overflow-x: hidden;
+        min-height: 100vh;
+    }
+
+    .bg-wrapper {
+        position: fixed;
+        inset: 0;
+        z-index: -5;
+        background: radial-gradient(circle at 50% 50%, #0a192f 0%, #020406 100%);
+    }
+
+    .nebula {
+        position: fixed;
+        width: 150vmax;
+        height: 150vmax;
+        top: -25%;
+        left: -25%;
+        background: radial-gradient(circle at center, rgba(0, 242, 255, 0.05) 0%, transparent 50%);
+        animation: rotate 60s linear infinite;
+        z-index: -4;
+    }
+
+    @keyframes rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    .grid-plane {
+        position: fixed;
+        inset: 0;
+        background-image: 
+            linear-gradient(rgba(0, 255, 65, 0.07) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 255, 65, 0.07) 1px, transparent 1px);
+        background-size: 50px 50px;
+        mask-image: radial-gradient(ellipse at center, black 20%, transparent 80%);
+        z-index: -3;
+    }
+
+    .particle {
+        position: fixed;
+        background: white;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: -2;
+        animation: twinkle var(--d) ease-in-out infinite;
+    }
+
+    @keyframes twinkle {
+        0%, 100% { opacity: 0.2; transform: scale(1); }
+        50% { opacity: 1; transform: scale(1.5); }
+    }
+
+    header {
+        padding: 140px 20px 80px;
+        text-align: center;
+        perspective: 1000px;
+    }
+
+    .glitch-wrapper {
+        position: relative;
+        display: inline-block;
+    }
+
+    .main-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: clamp(3rem, 12vw, 6.5rem);
+        font-weight: 900;
+        letter-spacing: 20px;
+        color: #fff;
+        text-transform: uppercase;
+        position: relative;
+        text-shadow: 0 0 30px rgba(0, 255, 65, 0.6); /* Glow ditambah */
+        animation: titleEntry 1.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    @keyframes titleEntry {
+        0% { opacity: 0; transform: translateZ(-200px); letter-spacing: 50px; }
+        100% { opacity: 1; transform: translateZ(0); letter-spacing: 20px; }
+    }
+
+    .container {
+        max-width: 1000px;
+        margin: auto;
+        padding: 0 20px 100px;
+    }
+
+    .project-card {
+        background: var(--card-bg);
+        border: 1px solid rgba(0, 255, 65, 0.2);
+        margin-bottom: 60px;
+        padding: 60px;
+        position: relative;
+        overflow: hidden;
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+        clip-path: polygon(0 0, 94% 0, 100% 18%, 100% 100%, 6% 100%, 0 82%);
+        /* Efek Shadow baru */
+        box-shadow: inset 0 0 20px rgba(0, 255, 65, 0.05);
+    }
+
+    .project-card::before {
+        content: "";
+        position: absolute;
+        top: -100%;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(transparent, rgba(0, 242, 255, 0.1), transparent);
+        transition: 0.8s;
+        z-index: 1;
+    }
+
+    .project-card:hover::before {
+        top: 100%;
+    }
+
+    .project-card:hover {
+        border-color: var(--neon-blue);
+        box-shadow: 0 20px 80px rgba(0, 0, 0, 0.7), 0 0 30px rgba(0, 242, 255, 0.2);
+        transform: translateY(-15px) scale(1.03);
+    }
+
+    .node-label {
+        font-size: 0.7rem;
+        color: var(--neon-blue);
+        letter-spacing: 6px;
+        text-transform: uppercase;
+        margin-bottom: 20px;
+        display: block;
+        opacity: 0.8;
+        /* Tambah bar hiasan */
+        border-left: 2px solid currentColor;
+        padding-left: 10px;
+    }
+
+    .card-content h2 {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 2.5rem;
+        color: #fff;
+        margin-bottom: 20px;
+        background: linear-gradient(to right, #fff, #64748b);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+    }
+
+    .card-content p {
+        color: #94a3b8;
+        line-height: 1.9;
+        font-size: 1.1rem;
+        max-width: 90%;
+    }
+
+    .btn-cyber {
+        margin-top: 40px;
+        padding: 15px 45px;
+        background: transparent;
+        border: 1px solid var(--neon-green);
+        color: var(--neon-green);
+        font-family: 'Orbitron';
+        font-weight: bold;
+        text-decoration: none;
+        display: inline-block;
+        letter-spacing: 5px;
+        position: relative;
+        transition: 0.4s;
+        overflow: hidden;
+        text-shadow: 0 0 5px var(--neon-green);
+    }
+
+    .btn-cyber:hover {
+        color: #000;
+        background: var(--neon-green);
+        box-shadow: 0 0 40px var(--neon-green);
+        transform: scale(1.05);
+    }
+
+    .corner-info {
+        position: fixed;
+        padding: 25px;
+        font-size: 0.65rem;
+        letter-spacing: 3px;
+        color: var(--neon-blue);
+        z-index: 100;
+        text-transform: uppercase;
+        background: rgba(0,0,0,0.2);
+        backdrop-filter: blur(5px);
+    }
+
+    footer {
+        padding: 100px 20px;
+        text-align: center;
+        opacity: 0.4;
+        font-size: 0.7rem;
+        letter-spacing: 8px;
+        color: var(--neon-blue);
+    }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg-dark); }
+    ::-webkit-scrollbar-thumb { background: #1a202c; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--neon-green); }
+
+</style>
+</head>
+<body>
+
+<div class="bg-wrapper"></div>
+<div class="nebula"></div>
+<div class="grid-plane"></div>
+<div id="starfield"></div>
+
+<div class="corner-info" style="top: 0; left: 0; border-bottom: 1px solid var(--neon-blue); border-right: 1px solid var(--neon-blue);">System: Stable // Core: 0x88F</div>
+<div class="corner-info" style="top: 0; right: 0; color: var(--neon-pink); border-bottom: 1px solid var(--neon-pink); border-left: 1px solid var(--neon-pink);">STATUS: ONLINE</div>
+
+<header>
+    <div class="glitch-wrapper">
+        <div style="font-size: 0.8rem; letter-spacing: 12px; color: var(--neon-blue); margin-bottom: 15px; text-shadow: 0 0 10px var(--neon-blue);">AUTHORIZED ACCESS ONLY</div>
+        <h1 class="main-title">PROJECT_SPACE</h1>
+        <h6>RECOMMENDED TO OPEN ON LAPTOP OR PC</h6>
+    </div>
+</header>
+
+<div class="container">
+    <div class="project-card">
+        <div class="card-content">
+            <span class="node-label">Network_Node_01</span>
+            <h2>LATE_NIGHT</h2>
+            <P> BUNCH OF YAPS</P>
+            <a href="https://linaluvmintsecacc.github.io/latenight/" target="_blank" class="btn-cyber">ENTER</a>
+        </div>
+    </div>
+
+    <div class="project-card" style="border-left: 3px solid var(--neon-pink);">
+        <div class="card-content">
+            <span class="node-label" style="color: var(--neon-pink);">Network_Node_02</span>
+            <h2>IN_10_YEARS</h2>
+            <P>LOCKED WEB UNTIL CERTAION TIME</P>
+            <a href="https://linaluvmintsecacc.github.io/20352812/" target="_blank" class="btn-cyber" style="border-color: var(--neon-pink); color: var(--neon-pink);">ENTER</a>
+        </div>
+    </div>
+
+    <div class="project-card" style="border-left: 3px solid var(--neon-blue);">
+        <div class="card-content">
+            <span class="node-label" style="color: var(--neon-blue);">Network_Node_03</span>
+            <h2>FOR_2027</h2>
+            <P>FOR THOSE I LOVE</P>
+            <a href="https://linaluvmint.github.io/11may2025projectcoding/" target="_blank" class="btn-cyber" style="border-color: var(--neon-blue); color: var(--neon-blue);">ENTER</a>
+        </div>
+    </div>
+</div>
+
+<footer>
+    @2025 
+</footer>
+
+<script>
+    const starfield = document.getElementById('starfield');
+    const starCount = 150;
+    const stars = [];
+
+    for (let i = 0; i < starCount; i++) {
+        const star = document.createElement('div');
+        star.className = 'particle';
+        const x = Math.random() * 100;
+        const y = Math.random() * 100;
+        const size = Math.random() * 2;
+        const delay = Math.random() * 5;
+        
+        star.style.left = `${x}vw`;
+        star.style.top = `${y}vh`;
+        star.style.width = `${size}px`;
+        star.style.height = `${size}px`;
+        star.style.setProperty('--d', `${2 + delay}s`);
+        
+        starfield.appendChild(star);
+        stars.push({ el: star, x, y });
+    }
+
+    // 2. Smooth 3D Hover
+    document.querySelectorAll('.project-card').forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = (e.clientX - rect.left) / rect.width - 0.5;
+            const y = (e.clientY - rect.top) / rect.height - 0.5;
+            
+            card.style.transform = `
+                perspective(1000px) 
+                rotateX(${y * -15}deg) 
+                rotateY(${x * 15}deg) 
+                translateY(-15px)
+            `;
+            
+            const content = card.querySelector('.card-content');
+            content.style.transform = `translateX(${x * 20}px) translateY(${y * 20}px)`;
+        });
+
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0)`;
+            card.querySelector('.card-content').style.transform = `none`;
+        });
+    });
+
+    // 3. Mouse Follower Nebula & Star Parallax
+    const nebula = document.querySelector('.nebula');
+    window.addEventListener('mousemove', (e) => {
+        const mouseX = e.clientX / window.innerWidth - 0.5;
+        const mouseY = e.clientY / window.innerHeight - 0.5;
+        
+        nebula.style.transform = `translate(${mouseX * 50}px, ${mouseY * 50}px) rotate(${mouseX * 20}deg)`;
+        
+        // Bintang ikut bergerak sikit (parallax)
+        stars.forEach((star, i) => {
+            const movement = (i % 5) + 1;
+            star.el.style.transform = `translate(${mouseX * movement * 10}px, ${mouseY * movement * 10}px)`;
+        });
+    });
+</script>
+
+</body>
+</html>
